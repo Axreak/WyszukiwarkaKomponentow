@@ -675,7 +675,11 @@
       .qr-wrap {
         display: flex;
         justify-content: center;
-        padding: 16px 0;
+        align-items: center;
+        padding: 16px;
+        background: var(--qr-bg);
+        border-radius: 12px;
+        margin: 8px 0;
         animation: fadeIn 0.3s ease;
       }
 
@@ -830,7 +834,7 @@
             <div class="appbar-title">🗂️ Baza danych</div>
             <div class="appbar-sub" id="home-sub">Wczytywanie…</div>
           </div>
-          <button class="theme-toggle" onclick="toggleTheme()" title="Przełącz motyw">���</button>
+          <button class="theme-toggle" onclick="toggleTheme()" title="Przełącz motyw">🌙</button>
         </div>
 
         <div class="home-tiles">
@@ -1016,10 +1020,10 @@
     <div class="toast" id="toast"></div>
 
     <script>
-      // ── CONFIG — wbudowana w aplikację ────────────────────────────��──────────────
+      // ── CONFIG — wbudowana w aplikację ────────────────────────────────────────────
       // Zmień te dwie wartości na swoje dane z Supabase (Settings → API)
       const SUPABASE_URL = 'https://ynyjarneuuykdkkosonf.supabase.co';
-      const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlueWphcm5ldXV5a2Rra29zb25mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE0ODg2NzgsImV4cCI6MjEwNzA2NDY3OH0.KBaJjUbst7TXX0A_6hUMyVNotXZZoLu7HLWzPELo0j0';
+      const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlueWphcm5ldXV5a2Rra29zb25mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE0ODg2NzgsImV4cCI6MjEwNzA2NDY3OH0.KBaJjUbst7TXXvBbw8DwHKn8FV8oHrLkJWzPu8fxO8o';
 
       let db = null;
       let allItems = [];
@@ -1035,14 +1039,12 @@
         let saved = localStorage.getItem('theme');
         
         if (!saved) {
-          // Sprawdź preferencje systemu operacyjnego
           const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
           saved = prefersDark ? 'dark' : 'light';
         }
         
         setTheme(saved);
         
-        // Obserwuj zmiany preferencji systemu
         window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
           if (!localStorage.getItem('theme')) {
             setTheme(e.matches ? 'dark' : 'light');
@@ -1053,9 +1055,11 @@
       function setTheme(theme) {
         if (theme === 'dark') {
           document.documentElement.setAttribute('data-theme', 'dark');
+          document.documentElement.style.setProperty('--qr-bg', '#1c1c1e');
           localStorage.setItem('theme', 'dark');
         } else {
           document.documentElement.removeAttribute('data-theme');
+          document.documentElement.style.setProperty('--qr-bg', '#ffffff');
           localStorage.setItem('theme', 'light');
         }
         updateThemeIcon();
@@ -1144,7 +1148,7 @@
       }
 
       function updateHomeSub() {
-        document.getElementById('home-sub').textContent = `⬤ ${allItems.length} pozycji`;
+        document.getElementById('home-sub').textContent = `⬤ ${allItems.length} pozycji · ${allPula.length} w puli`;
       }
 
       // ── WYSZUKIWARKA ─────────────────────────────────────────────────────────────
@@ -1226,7 +1230,7 @@
         }
       }
 
-      // ── PULA ────────────��───────────────────────────────────────────────────────
+      // ── PULA ────────────────────────────────────────────────────────────────────
       function renderPula() {
         document.getElementById('pula-count-bar').textContent = `Pozycji w puli: ${allPula.length}`;
         const list = document.getElementById('pula-list');
@@ -1308,7 +1312,7 @@
         }
       }
 
-      // ── USUWANIE ─────────��─────────────────────────────────────────────────────
+      // ── USUWANIE ─────────────────────────────────────────────────────────────────
       function askDelete(type, id, name) {
         deleteType = type;
         deletingId = id;
@@ -1328,7 +1332,7 @@
         }
       }
 
-      // ── BACKUP ──────────────────────────────────────────────────────────────────
+      // ── BACKUP ───────────────────────────────────────────────────────────────────
       async function loadBackups() {
         const { data, error } = await db.from('backups').select('*').order('created_at', { ascending: false }).limit(20);
         const list = document.getElementById('backup-list');
@@ -1406,19 +1410,26 @@
         }
       }
 
-      // ── QR ──────────────────────────────────────────────────────────────────────
+      // ── QR ────────────────────────────────────────────────────────────────────────
       function showQR() {
         const url = window.location.href.split('?')[0];
         const qrEl = document.getElementById('qrcode');
         qrEl.innerHTML = '';
+        
+        // Kolory dostosowane do aktualnego motywu
+        const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+        const colorDark = isDark ? '#f2f2f7' : '#1a1a18';
+        const colorLight = isDark ? '#1c1c1e' : '#ffffff';
+        
         new QRCode(qrEl, {
           text: url,
           width: 200,
           height: 200,
-          colorDark: '#1A1A18',
-          colorLight: '#FFFFFF',
+          colorDark: colorDark,
+          colorLight: colorLight,
           correctLevel: QRCode.CorrectLevel.M,
         });
+        
         openModal('modal-qr');
       }
 
@@ -1428,7 +1439,7 @@
           .catch(() => toast('Nie udało się skopiować'));
       }
 
-      // ── UTILS ───────────────────────────────────────────────────────────────────
+      // ── UTILS ────────────────────────────────────────────────────────────────────
       function openModal(id) {
         document.getElementById(id).classList.add('open');
       }
@@ -1469,7 +1480,7 @@
         }
       }
 
-      // ── START ──────────────────────────────────��────────────────────────────────
+      // ── START ──────────────────────────────────────────────────────────────────────
       startApp({ url: SUPABASE_URL, key: SUPABASE_KEY });
     </script>
   </body>
