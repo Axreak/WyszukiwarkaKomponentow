@@ -1,673 +1,1300 @@
 <!DOCTYPE html>
 <html lang="pl">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="Baza danych">
-<meta name="theme-color" content="#ffffff">
-<link rel="manifest" href="manifest.json">
-<title>Baza danych</title>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="Baza danych" />
+    <meta name="theme-color" content="#ffffff" />
+    <link rel="manifest" href="manifest.json" />
+    <title>Baza danych</title>
 
-<!-- Supabase -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<!-- QR Code -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- QR Code -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
-<style>
-:root {
-  --bg:       #F1F0EC;
-  --surface:  #FFFFFF;
-  --border:   #E2E0D8;
-  --border2:  #C8C6BE;
-  --txt:      #1A1A18;
-  --txt2:     #5F5E5A;
-  --muted:    #9099AA;
-  --accent:   #378ADD;
-  --accent-bg:#E6F1FB;
-  --accent-tx:#0C447C;
-  --danger:   #E24B4A;
-  --danger-bg:#FCEBEB;
-  --green:    #22C55E;
-  --green-bg: #DCFCE7;
-  --orange-bg:#FEF3C7;
-  --radius:   10px;
-  --safe-top: env(safe-area-inset-top, 0px);
-  --safe-bot: env(safe-area-inset-bottom, 0px);
-}
-*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-html,body{height:100%;background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:var(--txt);font-size:15px}
-.app{display:flex;flex-direction:column;height:100%;padding-top:var(--safe-top);padding-bottom:var(--safe-bot)}
-.appbar{background:var(--surface);border-bottom:1px solid var(--border);padding:14px 16px;display:flex;align-items:center;gap:10px;flex-shrink:0}
-.appbar-title{font-size:17px;font-weight:600;flex:1}
-.appbar-sub{font-size:12px;color:var(--muted);margin-top:1px}
-.content{flex:1;overflow-y:auto;padding:12px}
-.screen{display:none;flex-direction:column;height:100%}
-.screen.active{display:flex}
+    <style>
+      :root {
+        --bg: #f1f0ec;
+        --surface: #ffffff;
+        --border: #e2e0d8;
+        --border2: #c8c6be;
+        --txt: #1a1a18;
+        --txt2: #5f5e5a;
+        --muted: #9099aa;
+        --accent: #378add;
+        --accent-bg: #e6f1fb;
+        --accent-tx: #0c447c;
+        --danger: #e24b4a;
+        --danger-bg: #fcebeb;
+        --green: #22c55e;
+        --green-bg: #dcfce7;
+        --orange-bg: #fef3c7;
+        --radius: 10px;
+        --safe-top: env(safe-area-inset-top, 0px);
+        --safe-bot: env(safe-area-inset-bottom, 0px);
+      }
 
-/* Home */
-.home-tiles{display:flex;flex-direction:column;gap:12px;padding:16px;justify-content:center;flex:1}
-.tile{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:20px 18px;display:flex;align-items:center;gap:16px;cursor:pointer;transition:background .1s;user-select:none}
-.tile:active{background:var(--bg)}
-.tile-icon{width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0}
-.tile-blue{background:var(--accent-bg)}.tile-green{background:var(--green-bg)}.tile-orange{background:var(--orange-bg)}.tile-red{background:var(--danger-bg)}
-.tile-txt{flex:1}.tile-name{font-size:16px;font-weight:600;margin-bottom:3px}
-.tile-desc{font-size:12px;color:var(--muted);line-height:1.4}
-.tile-arr{font-size:20px;color:var(--muted)}
+      [data-theme="dark"] {
+        --bg: #0f0f0f;
+        --surface: #1c1c1e;
+        --border: #2c2c2e;
+        --border2: #3a3a3c;
+        --txt: #f2f2f7;
+        --txt2: #aeaeb2;
+        --muted: #636366;
+        --accent: #4a9ee0;
+        --accent-bg: #1c2f3f;
+        --accent-tx: #7dc0f0;
+        --danger: #ff453a;
+        --danger-bg: #2c1a1a;
+        --green: #30d158;
+        --green-bg: #1a2c1e;
+        --orange-bg: #2c2410;
+      }
 
-/* Search */
-.search-wrap{padding:10px 12px 6px;flex-shrink:0}
-.search-box{background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius);padding:10px 13px;display:flex;align-items:center;gap:8px}
-.search-box input{border:none;outline:none;font-size:15px;color:var(--txt);background:transparent;width:100%}
-.count-bar{padding:4px 16px 6px;font-size:12px;color:var(--muted);flex-shrink:0}
+      .theme-toggle {
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-size: 20px;
+        padding: 4px;
+        line-height: 1;
+        color: var(--txt);
+      }
 
-/* Cards */
-.list{flex:1;overflow-y:auto;padding:0 10px 16px}
-.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 14px;display:flex;align-items:center;gap:10px;margin-bottom:8px;cursor:pointer}
-.card:active{background:var(--bg)}
-.badge{width:36px;height:36px;border-radius:50%;background:var(--accent-bg);color:var(--accent-tx);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;flex-shrink:0}
-.card-body{flex:1;min-width:0}
-.card-title{font-size:14px;font-weight:600}
-.card-sub{font-size:12px;color:var(--txt2);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.card-actions{display:flex;gap:6px}
-.btn-icon{width:32px;height:32px;border-radius:8px;border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:15px;flex-shrink:0}
-.btn-edit{background:var(--accent-bg);color:var(--accent-tx)}
-.btn-del{background:var(--danger-bg);color:var(--danger)}
-.pula-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 14px;display:flex;align-items:center;gap:10px;margin-bottom:8px}
-.uwagi-badge{padding:3px 8px;border-radius:5px;font-size:11px;font-weight:600}
-.uwagi-KP{background:#FAEEDA;color:#633806}.uwagi-OP{background:var(--accent-bg);color:var(--accent-tx)}.uwagi-WG{background:var(--green-bg);color:#166534}
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        -webkit-tap-highlight-color: transparent;
+      }
 
-/* Buttons */
-.btn{border:none;border-radius:var(--radius);padding:10px 18px;font-size:14px;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
-.btn-primary{background:var(--accent);color:#fff}.btn-primary:active{opacity:.85}
-.btn-ghost{background:var(--bg);border:1px solid var(--border2);color:var(--txt2)}
-.btn-danger{background:var(--danger);color:#fff}
-.btn-add{background:var(--accent);color:#fff;border:none;border-radius:var(--radius);padding:7px 14px;font-size:13px;font-weight:500;cursor:pointer}
-.btn-back{background:var(--accent-bg);color:var(--accent-tx);border:none;border-radius:8px;width:34px;height:34px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;flex-shrink:0}
+      html,
+      body {
+        height: 100%;
+        background: var(--bg);
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        color: var(--txt);
+        font-size: 15px;
+      }
 
-/* Empty */
-.empty{text-align:center;padding:60px 20px 20px;color:var(--muted);font-size:14px}
-.empty-icon{font-size:40px;margin-bottom:12px}
+      .app {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        padding-top: var(--safe-top);
+        padding-bottom: var(--safe-bot);
+      }
 
-/* Modal */
-.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:100;display:none;align-items:flex-end;justify-content:center}
-.modal-bg.open{display:flex}
-.modal{background:var(--surface);border-radius:20px 20px 0 0;padding:20px 18px 32px;width:100%;max-width:500px;max-height:90vh;overflow-y:auto}
-.modal-title{font-size:17px;font-weight:600;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center}
-.modal-close{background:var(--bg);border:1px solid var(--border2);border-radius:50%;width:30px;height:30px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:17px;color:var(--txt2)}
-.field{margin-bottom:14px}
-.field label{font-size:12px;color:var(--muted);display:block;margin-bottom:5px}
-.field input,.field select,.field textarea{width:100%;border:1px solid var(--border2);border-radius:var(--radius);padding:10px 12px;font-size:15px;color:var(--txt);background:var(--bg);outline:none;font-family:inherit}
-.field input:focus,.field select:focus{border-color:var(--accent)}
-.modal-btns{display:flex;gap:8px;margin-top:18px}
-.modal-btns .btn{flex:1;justify-content:center}
+      .appbar {
+        background: var(--surface);
+        border-bottom: 1px solid var(--border);
+        padding: 14px 16px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-shrink: 0;
+      }
 
-/* Backup list */
-.backup-item{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:12px;margin-bottom:8px;display:flex;align-items:center;gap:10px}
-.backup-info{flex:1}
-.backup-label{font-size:14px;font-weight:500}
-.backup-meta{font-size:12px;color:var(--muted);margin-top:2px}
-.btn-restore{background:var(--green-bg);color:#166534;border:none;border-radius:8px;padding:6px 12px;font-size:12px;font-weight:500;cursor:pointer}
+      .appbar-title {
+        font-size: 17px;
+        font-weight: 600;
+        flex: 1;
+      }
 
-/* QR */
-.qr-wrap{display:flex;justify-content:center;padding:16px 0}
-.qr-info{font-size:13px;color:var(--muted);text-align:center;margin-top:8px;line-height:1.5}
+      .appbar-sub {
+        font-size: 12px;
+        color: var(--muted);
+        margin-top: 1px;
+      }
 
-/* Toast */
-.toast{position:fixed;bottom:calc(20px + var(--safe-bot));left:50%;transform:translateX(-50%);background:#1A1A18;color:#fff;padding:10px 20px;border-radius:20px;font-size:13px;z-index:999;opacity:0;transition:opacity .2s;pointer-events:none;white-space:nowrap}
-.toast.show{opacity:1}
+      .content {
+        flex: 1;
+        overflow-y: auto;
+        padding: 12px;
+      }
 
-/* Loading */
-.loading{position:fixed;inset:0;background:var(--surface);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px;z-index:200}
-.spinner{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
-.loading-txt{font-size:14px;color:var(--muted)}
+      .screen {
+        display: none;
+        flex-direction: column;
+        height: 100%;
+      }
 
-/* Config screen */
-.config-box{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin-bottom:12px}
-.config-label{font-size:12px;color:var(--muted);margin-bottom:6px}
-.config-val{font-size:13px;color:var(--txt);word-break:break-all;font-family:monospace}
+      .screen.active {
+        display: flex;
+      }
 
-.del-icon{font-size:36px;text-align:center;margin-bottom:8px}
-.del-msg{font-size:14px;color:var(--txt2);text-align:center;margin-bottom:4px}
-.del-name{font-size:16px;font-weight:600;text-align:center;margin-bottom:4px}
+      /* Home */
+      .home-tiles {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        padding: 16px;
+        justify-content: center;
+        flex: 1;
+      }
 
-/* Realtime dot */
-.rt-dot{width:8px;height:8px;border-radius:50%;background:var(--green);display:inline-block;margin-right:4px;animation:pulse 2s infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
-</style>
-</head>
-<body>
+      .tile {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 20px 18px;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        cursor: pointer;
+        transition: background 0.1s;
+        user-select: none;
+      }
 
+      .tile:active {
+        background: var(--bg);
+      }
 
+      .tile-icon {
+        width: 52px;
+        height: 52px;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        flex-shrink: 0;
+      }
 
-<div class="loading" id="loading">
-  <div class="spinner"></div>
-  <div class="loading-txt">Łączenie z bazą…</div>
-</div>
+      .tile-blue { background: var(--accent-bg); }
+      .tile-green { background: var(--green-bg); }
+      .tile-orange { background: var(--orange-bg); }
+      .tile-red { background: var(--danger-bg); }
 
-<div class="app" id="app" style="display:none">
+      .tile-txt {
+        flex: 1;
+      }
 
-  <!-- ── EKRAN GŁÓWNY ── -->
-  <div class="screen active" id="screen-home">
-    <div class="appbar">
-      <div>
-        <div class="appbar-title">🗂️ Baza danych</div>
-        <div class="appbar-sub" id="home-sub">Wczytywanie…</div>
-      </div>
+      .tile-name {
+        font-size: 16px;
+        font-weight: 600;
+        margin-bottom: 3px;
+      }
+
+      .tile-desc {
+        font-size: 12px;
+        color: var(--muted);
+        line-height: 1.4;
+      }
+
+      .tile-arr {
+        font-size: 20px;
+        color: var(--muted);
+      }
+
+      /* Search */
+      .search-wrap {
+        padding: 10px 12px 6px;
+        flex-shrink: 0;
+      }
+
+      .search-box {
+        background: var(--surface);
+        border: 1px solid var(--border2);
+        border-radius: var(--radius);
+        padding: 10px 13px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .search-box input {
+        border: none;
+        outline: none;
+        font-size: 15px;
+        color: var(--txt);
+        background: transparent;
+        width: 100%;
+      }
+
+      .count-bar {
+        padding: 4px 16px 6px;
+        font-size: 12px;
+        color: var(--muted);
+        flex-shrink: 0;
+      }
+
+      /* Cards */
+      .list {
+        flex: 1;
+        overflow-y: auto;
+        padding: 0 10px 16px;
+      }
+
+      .card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 12px 14px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 8px;
+        cursor: pointer;
+      }
+
+      .card:active {
+        background: var(--bg);
+      }
+
+      .badge {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: var(--accent-bg);
+        color: var(--accent-tx);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 11px;
+        font-weight: 600;
+        flex-shrink: 0;
+      }
+
+      .card-body {
+        flex: 1;
+        min-width: 0;
+      }
+
+      .card-title {
+        font-size: 14px;
+        font-weight: 600;
+      }
+
+      .card-sub {
+        font-size: 12px;
+        color: var(--txt2);
+        margin-top: 2px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .card-actions {
+        display: flex;
+        gap: 6px;
+      }
+
+      .btn-icon {
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        border: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        font-size: 15px;
+        flex-shrink: 0;
+      }
+
+      .btn-edit {
+        background: var(--accent-bg);
+        color: var(--accent-tx);
+      }
+
+      .btn-del {
+        background: var(--danger-bg);
+        color: var(--danger);
+      }
+
+      .pula-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 12px 14px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 8px;
+      }
+
+      .uwagi-badge {
+        padding: 3px 8px;
+        border-radius: 5px;
+        font-size: 11px;
+        font-weight: 600;
+      }
+
+      .uwagi-KP { background: #faeeda; color: #633806; }
+      .uwagi-OP { background: var(--accent-bg); color: var(--accent-tx); }
+      .uwagi-WG { background: var(--green-bg); color: #166534; }
+
+      /* Buttons */
+      .btn {
+        border: none;
+        border-radius: var(--radius);
+        padding: 10px 18px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .btn-primary {
+        background: var(--accent);
+        color: #fff;
+      }
+
+      .btn-primary:active {
+        opacity: 0.85;
+      }
+
+      .btn-ghost {
+        background: var(--bg);
+        border: 1px solid var(--border2);
+        color: var(--txt2);
+      }
+
+      .btn-danger {
+        background: var(--danger);
+        color: #fff;
+      }
+
+      .btn-add {
+        background: var(--accent);
+        color: #fff;
+        border: none;
+        border-radius: var(--radius);
+        padding: 7px 14px;
+        font-size: 13px;
+        font-weight: 500;
+        cursor: pointer;
+      }
+
+      .btn-back {
+        background: var(--accent-bg);
+        color: var(--accent-tx);
+        border: none;
+        border-radius: 8px;
+        width: 34px;
+        height: 34px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        font-size: 18px;
+        flex-shrink: 0;
+      }
+
+      /* Empty */
+      .empty {
+        text-align: center;
+        padding: 60px 20px 20px;
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      .empty-icon {
+        font-size: 40px;
+        margin-bottom: 12px;
+      }
+
+      /* Modal */
+      .modal-bg {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.45);
+        z-index: 100;
+        display: none;
+        align-items: flex-end;
+        justify-content: center;
+      }
+
+      .modal-bg.open {
+        display: flex;
+      }
+
+      .modal {
+        background: var(--surface);
+        border-radius: 20px 20px 0 0;
+        padding: 20px 18px 32px;
+        width: 100%;
+        max-width: 500px;
+        max-height: 90vh;
+        overflow-y: auto;
+      }
+
+      .modal-title {
+        font-size: 17px;
+        font-weight: 600;
+        margin-bottom: 16px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .modal-close {
+        background: var(--bg);
+        border: 1px solid var(--border2);
+        border-radius: 50%;
+        width: 30px;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        font-size: 17px;
+        color: var(--txt);
+      }
+
+      .field {
+        margin-bottom: 14px;
+      }
+
+      .field label {
+        font-size: 12px;
+        color: var(--muted);
+        display: block;
+        margin-bottom: 5px;
+      }
+
+      .field input,
+      .field select,
+      .field textarea {
+        width: 100%;
+        border: 1px solid var(--border2);
+        border-radius: var(--radius);
+        padding: 10px 12px;
+        font-size: 15px;
+        color: var(--txt);
+        background: var(--bg);
+        outline: none;
+        font-family: inherit;
+      }
+
+      .field input:focus,
+      .field select:focus {
+        border-color: var(--accent);
+      }
+
+      .modal-btns {
+        display: flex;
+        gap: 8px;
+        margin-top: 18px;
+      }
+
+      .modal-btns .btn {
+        flex: 1;
+        justify-content: center;
+      }
+
+      /* Backup list */
+      .backup-item {
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 12px;
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .backup-info {
+        flex: 1;
+      }
+
+      .backup-label {
+        font-size: 14px;
+        font-weight: 500;
+      }
+
+      .backup-meta {
+        font-size: 12px;
+        color: var(--muted);
+        margin-top: 2px;
+      }
+
+      .btn-restore {
+        background: var(--green-bg);
+        color: #166534;
+        border: none;
+        border-radius: 8px;
+        padding: 6px 12px;
+        font-size: 12px;
+        font-weight: 500;
+        cursor: pointer;
+      }
+
+      /* QR */
+      .qr-wrap {
+        display: flex;
+        justify-content: center;
+        padding: 16px 0;
+      }
+
+      .qr-info {
+        font-size: 13px;
+        color: var(--muted);
+        text-align: center;
+        margin-top: 8px;
+        line-height: 1.5;
+      }
+
+      /* Toast */
+      .toast {
+        position: fixed;
+        bottom: calc(20px + var(--safe-bot));
+        left: 50%;
+        transform: translateX(-50%);
+        background: #1a1a18;
+        color: #fff;
+        padding: 10px 20px;
+        border-radius: 20px;
+        font-size: 13px;
+        z-index: 999;
+        opacity: 0;
+        transition: opacity 0.3s;
+        pointer-events: none;
+      }
+
+      .toast.show {
+        opacity: 1;
+      }
+
+      /* Loading */
+      .loading {
+        position: fixed;
+        inset: 0;
+        background: var(--surface);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        gap: 12px;
+        z-index: 200;
+      }
+
+      .spinner {
+        width: 36px;
+        height: 36px;
+        border: 3px solid var(--border);
+        border-top-color: var(--accent);
+        border-radius: 50%;
+        animation: spin 0.7s linear infinite;
+      }
+
+      @keyframes spin {
+        to { transform: rotate(360deg); }
+      }
+
+      .loading-txt {
+        font-size: 14px;
+        color: var(--muted);
+      }
+
+      /* Config screen */
+      .config-box {
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 14px;
+        margin-bottom: 12px;
+      }
+
+      .config-label {
+        font-size: 12px;
+        color: var(--muted);
+        margin-bottom: 6px;
+      }
+
+      .config-val {
+        font-size: 13px;
+        color: var(--txt);
+        word-break: break-all;
+        font-family: monospace;
+      }
+
+      .del-icon {
+        font-size: 36px;
+        text-align: center;
+        margin-bottom: 8px;
+      }
+
+      .del-msg {
+        font-size: 14px;
+        color: var(--txt2);
+        text-align: center;
+        margin-bottom: 4px;
+      }
+
+      .del-name {
+        font-size: 16px;
+        font-weight: 600;
+        text-align: center;
+        margin-bottom: 4px;
+      }
+
+      /* Realtime dot */
+      .rt-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--green);
+        display: inline-block;
+        margin-right: 4px;
+        animation: pulse 2s infinite;
+      }
+
+      @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.4; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="loading" id="loading">
+      <div class="spinner"></div>
+      <div class="loading-txt">Łączenie z bazą…</div>
     </div>
-    <div class="home-tiles">
-      <div class="tile" onclick="goTo('wyszukiwarka')">
-        <div class="tile-icon tile-blue">🔍</div>
-        <div class="tile-txt">
-          <div class="tile-name">Wyszukiwarka</div>
-          <div class="tile-desc">Szukaj i zarządzaj pozycjami z listy</div>
+
+    <div class="app" id="app" style="display:none">
+      <!-- ── EKRAN GŁÓWNY ── -->
+      <div class="screen active" id="screen-home">
+        <div class="appbar">
+          <div>
+            <div class="appbar-title">🗂️ Baza danych</div>
+            <div class="appbar-sub" id="home-sub">Wczytywanie…</div>
+          </div>
+          <button class="theme-toggle" onclick="toggleTheme()" title="Przełącz motyw">🌙</button>
         </div>
-        <div class="tile-arr">›</div>
-      </div>
-      <!--
-      <div class="tile" onclick="goTo('pula')">
-        <div class="tile-icon tile-orange">🗂️</div>
-        <div class="tile-txt">
-          <div class="tile-name">Edytor puli</div>
-          <div class="tile-desc">Zarządzaj pozycjami do generatora</div>
+
+        <div class="home-tiles">
+          <div class="tile" onclick="goTo('wyszukiwarka')">
+            <div class="tile-icon tile-blue">🔍</div>
+            <div class="tile-txt">
+              <div class="tile-name">Wyszukiwarka</div>
+              <div class="tile-desc">Szukaj i zarządzaj pozycjami z listy</div>
+            </div>
+            <div class="tile-arr">›</div>
+          </div>
+
+          <!--
+          <div class="tile" onclick="goTo('pula')">
+            <div class="tile-icon tile-orange">🗂️</div>
+            <div class="tile-txt">
+              <div class="tile-name">Edytor puli</div>
+              <div class="tile-desc">Zarządzaj pozycjami do generatora</div>
+            </div>
+            <div class="tile-arr">›</div>
+          </div>
+          -->
+
+          <div class="tile" onclick="goTo('backup')">
+            <div class="tile-icon tile-green">💾</div>
+            <div class="tile-txt">
+              <div class="tile-name">Backup i przywracanie</div>
+              <div class="tile-desc">Zapisz lub przywróć dane bazy</div>
+            </div>
+            <div class="tile-arr">›</div>
+          </div>
+
+          <div class="tile" onclick="showQR()">
+            <div class="tile-icon" style="background:#F3E8FF">📲</div>
+            <div class="tile-txt">
+              <div class="tile-name">Udostępnij QR</div>
+              <div class="tile-desc">Kod QR do aplikacji dla innych</div>
+            </div>
+            <div class="tile-arr">��</div>
+          </div>
         </div>
-        <div class="tile-arr">›</div>
       </div>
-      -->
-      <div class="tile" onclick="goTo('backup')">
-        <div class="tile-icon tile-green">💾</div>
-        <div class="tile-txt">
-          <div class="tile-name">Backup i przywracanie</div>
-          <div class="tile-desc">Zapisz lub przywróć dane bazy</div>
+
+      <!-- ── WYSZUKIWARKA ── -->
+      <div class="screen" id="screen-wyszukiwarka">
+        <div class="appbar">
+          <button class="btn-back" onclick="goTo('home')">‹</button>
+          <div style="flex:1"><div class="appbar-title">Wyszukiwarka</div></div>
+          <button class="btn-add" onclick="openAddItem()">+ Dodaj</button>
         </div>
-        <div class="tile-arr">›</div>
-      </div>
-      <div class="tile" onclick="showQR()">
-        <div class="tile-icon" style="background:#F3E8FF">📲</div>
-        <div class="tile-txt">
-          <div class="tile-name">Udostępnij QR</div>
-          <div class="tile-desc">Kod QR do aplikacji dla innych</div>
+
+        <div class="search-wrap">
+          <div class="search-box">
+            <span style="color:var(--muted)">🔍</span>
+            <input type="text" id="search-input" placeholder="Wpisz numer lub opis…" oninput="filterItems()" />
+          </div>
         </div>
-        <div class="tile-arr">›</div>
+
+        <div class="count-bar" id="count-bar"></div>
+        <div class="list" id="items-list"></div>
       </div>
-    </div>
-  </div>
 
-  <!-- ── WYSZUKIWARKA ── -->
-  <div class="screen" id="screen-wyszukiwarka">
-    <div class="appbar">
-      <button class="btn-back" onclick="goTo('home')">‹</button>
-      <div style="flex:1"><div class="appbar-title">Wyszukiwarka</div></div>
-      <button class="btn-add" onclick="openAddItem()">+ Dodaj</button>
-    </div>
-    <div class="search-wrap">
-      <div class="search-box">
-        <span style="color:var(--muted)">🔍</span>
-        <input type="text" id="search-input" placeholder="Wpisz numer lub opis…" oninput="filterItems()">
-      </div>
-    </div>
-    <div class="count-bar" id="count-bar"></div>
-    <div class="list" id="items-list"></div>
-  </div>
-
-  <!-- ── EDYTOR PULI ── -->
-  <div class="screen" id="screen-pula">
-    <div class="appbar">
-      <button class="btn-back" onclick="goTo('home')">‹</button>
-      <div style="flex:1"><div class="appbar-title">Edytor puli</div></div>
-      <button class="btn-add" onclick="openAddPula()">+ Dodaj</button>
-    </div>
-    <div class="count-bar" id="pula-count-bar"></div>
-    <div class="list" id="pula-list"></div>
-  </div>
-
-  <!-- ── BACKUP ── -->
-  <div class="screen" id="screen-backup">
-    <div class="appbar">
-      <button class="btn-back" onclick="goTo('home')">‹</button>
-      <div style="flex:1"><div class="appbar-title">Backup</div></div>
-    </div>
-    <div style="padding:12px;flex:1;overflow-y:auto">
-      <button class="btn btn-primary" style="width:100%;justify-content:center;margin-bottom:16px" onclick="makeBackup()">
-        💾 Utwórz backup teraz
-      </button>
-      <div style="font-size:13px;color:var(--muted);margin-bottom:10px">Ostatnie backupy (auto + ręczne):</div>
-      <div id="backup-list"><div class="empty"><div class="empty-icon">💾</div>Brak backupów</div></div>
-    </div>
-  </div>
-
-</div>
-
-<!-- ── MODALS ── -->
-
-<!-- Dodaj/edytuj item -->
-<div class="modal-bg" id="modal-item">
-  <div class="modal">
-    <div class="modal-title">
-      <span id="modal-item-title">Dodaj pozycję</span>
-      <div class="modal-close" onclick="closeModal('modal-item')">✕</div>
-    </div>
-    <div class="field"><label>Numer</label><input type="text" id="item-numer" placeholder="np. MP25056552C"></div>
-    <div class="field"><label>Opis</label><input type="text" id="item-opis" placeholder="np. 1 Karton do KLT"></div>
-    <div class="modal-btns">
-      <button class="btn btn-ghost" onclick="closeModal('modal-item')">Anuluj</button>
-      <button class="btn btn-primary" id="btn-save-item" onclick="saveItem()">Zapisz</button>
-    </div>
-  </div>
-</div>
-
-<!-- Dodaj/edytuj pula -->
-<div class="modal-bg" id="modal-pula">
-  <div class="modal">
-    <div class="modal-title">
-      <span id="modal-pula-title">Dodaj do puli</span>
-      <div class="modal-close" onclick="closeModal('modal-pula')">✕</div>
-    </div>
-    <div class="field"><label>Materiał (opcjonalnie)</label><input type="text" id="pula-material" placeholder="np. Karton A"></div>
-    <div class="field">
-      <label>Kategoria</label>
-      <select id="pula-uwagi"><option value="KP">KP</option><option value="OP">OP</option><option value="WG">WG</option></select>
-    </div>
-    <div class="field"><label>Ilość (opcjonalnie)</label><input type="number" id="pula-ilosc" placeholder="np. 30"></div>
-    <div class="field"><label>Czas (minuty) *</label><input type="number" id="pula-czas" placeholder="np. 20" min="1"></div>
-    <div class="modal-btns">
-      <button class="btn btn-ghost" onclick="closeModal('modal-pula')">Anuluj</button>
-      <button class="btn btn-primary" onclick="savePula()">Zapisz</button>
-    </div>
-  </div>
-</div>
-
-<!-- Potwierdź usunięcie -->
-<div class="modal-bg" id="modal-del">
-  <div class="modal">
-    <div class="modal-title">
-      <span>Potwierdź usunięcie</span>
-      <div class="modal-close" onclick="closeModal('modal-del')">✕</div>
-    </div>
-    <div class="del-icon">🗑️</div>
-    <div class="del-msg">Czy na pewno chcesz usunąć?</div>
-    <div class="del-name" id="del-name"></div>
-    <div class="modal-btns">
-      <button class="btn btn-ghost" onclick="closeModal('modal-del')">Anuluj</button>
-      <button class="btn btn-danger" onclick="confirmDelete()">Usuń</button>
-    </div>
-  </div>
-</div>
-
-<!-- Potwierdź przywrócenie -->
-<div class="modal-bg" id="modal-restore">
-  <div class="modal">
-    <div class="modal-title">
-      <span>Przywróć backup</span>
-      <div class="modal-close" onclick="closeModal('modal-restore')">✕</div>
-    </div>
-    <div class="del-icon">⚠️</div>
-    <div class="del-msg" style="text-align:center">To zastąpi WSZYSTKIE aktualne dane!</div>
-    <div class="del-name" id="restore-label"></div>
-    <div class="modal-btns">
-      <button class="btn btn-ghost" onclick="closeModal('modal-restore')">Anuluj</button>
-      <button class="btn btn-primary" onclick="confirmRestore()">Przywróć</button>
-    </div>
-  </div>
-</div>
-
-<!-- QR -->
-<div class="modal-bg" id="modal-qr">
-  <div class="modal">
-    <div class="modal-title">
-      <span>Udostępnij aplikację</span>
-      <div class="modal-close" onclick="closeModal('modal-qr')">✕</div>
-    </div>
-    <div class="qr-wrap"><div id="qrcode"></div></div>
-    <div class="qr-info">Zeskanuj kod QR aby otworzyć aplikację.<br>Wszyscy korzystają z tej samej bazy danych.</div>
-    <div class="modal-btns" style="margin-top:14px">
-      <button class="btn btn-ghost" onclick="copyLink()">📋 Kopiuj link</button>
-      <button class="btn btn-primary" onclick="closeModal('modal-qr')">Zamknij</button>
-    </div>
-  </div>
-</div>
-
-<div class="toast" id="toast"></div>
-
-<script>
-// ── CONFIG — wbudowana w aplikację ───────────────────────────────────────────
-// Zmień te dwie wartości na swoje dane z Supabase (Settings → API)
-const SUPABASE_URL = 'https://ynyjarneuuykdkkosonf.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlueWphcm5ldXV5a2Rra29zb25mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE0ODg2NzgsImV4cCI6MjEwNzA2NDY3OH0.KBaJjUbst7TXX0A_6hUMyVNotXZZoLu7HLWzPELo0j0';
-
-let db = null;
-let allItems = [];
-let allPula  = [];
-let editingItemId = null;
-let editingPulaId = null;
-let deletingId    = null;
-let deleteType    = null;
-let restoreBackupId = null;
-
-// ── INIT ─────────────────────────────────────────────────────────────────────
-async function startApp(cfg) {
-  document.getElementById('loading').style.display = 'flex';
-
-  try {
-    db = window.supabase.createClient(cfg.url, cfg.key);
-
-    // Test połączenia
-    const { error } = await db.from('items').select('count', { count: 'exact', head: true });
-    if (error) throw error;
-
-    await Promise.all([fetchItems(), fetchPula()]);
-
-    // Realtime subscriptions
-    db.channel('db-changes')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'items' }, () => fetchItems())
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'pula' },  () => fetchPula())
-      .subscribe();
-
-    document.getElementById('loading').style.display = 'none';
-    document.getElementById('app').style.display = '';
-
-  } catch(e) {
-    document.getElementById('loading').innerHTML = `
-      <div style="text-align:center;padding:32px;max-width:360px">
-        <div style="font-size:36px;margin-bottom:12px">⚠️</div>
-        <div style="font-size:16px;font-weight:600;margin-bottom:8px;color:#E24B4A">Błąd połączenia</div>
-        <div style="font-size:13px;color:#9099AA;margin-bottom:20px">${e.message}</div>
-        <button class="btn btn-ghost" onclick="resetConfig()">Zmień dane połączenia</button>
-      </div>`;
-  }
-}
-
-function resetConfig() {
-  location.reload();
-}
-
-// ── FETCH ─────────────────────────────────────────────────────────────────────
-async function fetchItems() {
-  const { data, error } = await db.from('items').select('*').order('numer');
-  if (!error) { allItems = data || []; filterItems(); updateHomeSub(); }
-}
-
-async function fetchPula() {
-  const { data, error } = await db.from('pula').select('*').order('uwagi');
-  if (!error) { allPula = data || []; renderPula(); updateHomeSub(); }
-}
-
-// ── NAWIGACJA ────────────────────────────────────────────────────────────────
-function goTo(name) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById('screen-' + name).classList.add('active');
-  if (name === 'wyszukiwarka') { document.getElementById('search-input').value = ''; filterItems(); }
-  if (name === 'backup') loadBackups();
-}
-
-function updateHomeSub() {
-  document.getElementById('home-sub').textContent =
-    `⬤ ${allItems.length} pozycji · ${allPula.length} w puli`;
-}
-
-// ── WYSZUKIWARKA ──────────────────────────────────────────────────────────────
-function filterItems() {
-  const q = (document.getElementById('search-input')?.value || '').toLowerCase().trim();
-  const filtered = q
-    ? allItems.filter(i => (i.numer||'').toLowerCase().includes(q) || (i.opis||'').toLowerCase().includes(q))
-    : allItems;
-  const list = document.getElementById('items-list');
-  document.getElementById('count-bar').textContent = `Znaleziono: ${filtered.length} / ${allItems.length}`;
-  if (!filtered.length) {
-    list.innerHTML = `<div class="empty"><div class="empty-icon">📭</div>${q ? 'Brak wyników' : 'Brak pozycji. Dodaj pierwszą!'}</div>`;
-    return;
-  }
-  list.innerHTML = filtered.map((item, idx) => `
-    <div class="card">
-      <div class="badge">#${idx+1}</div>
-      <div class="card-body">
-        <div class="card-title">${esc(item.numer||'—')}</div>
-        <div class="card-sub">${esc(item.opis||'—')}</div>
-      </div>
-      <div class="card-actions">
-        <button class="btn-icon btn-edit" onclick="openEditItem(${item.id})">✏️</button>
-        <button class="btn-icon btn-del"  onclick="askDelete('item',${item.id},'${esc(item.numer||'')}')">🗑️</button>
-      </div>
-    </div>`).join('');
-}
-
-function openAddItem() {
-  editingItemId = null;
-  document.getElementById('modal-item-title').textContent = 'Dodaj pozycję';
-  document.getElementById('item-numer').value = '';
-  document.getElementById('item-opis').value  = '';
-  openModal('modal-item');
-}
-
-function openEditItem(id) {
-  const item = allItems.find(i => i.id === id);
-  if (!item) return;
-  editingItemId = id;
-  document.getElementById('modal-item-title').textContent = 'Edytuj pozycję';
-  document.getElementById('item-numer').value = item.numer || '';
-  document.getElementById('item-opis').value  = item.opis  || '';
-  openModal('modal-item');
-}
-
-async function saveItem() {
-  const numer = document.getElementById('item-numer').value.trim();
-  const opis  = document.getElementById('item-opis').value.trim();
-  if (!numer || !opis) { toast('Wypełnij wszystkie pola'); return; }
-  setBusy('btn-save-item', true);
-  try {
-    if (editingItemId) {
-      const { error } = await db.from('items').update({ numer, opis }).eq('id', editingItemId);
-      if (error) throw error;
-      toast('Zapisano zmiany');
-    } else {
-      const { error } = await db.from('items').insert({ numer, opis });
-      if (error) throw error;
-      toast('Dodano pozycję');
-    }
-    closeModal('modal-item');
-  } catch(e) { toast('Błąd: ' + e.message); }
-  finally { setBusy('btn-save-item', false); }
-}
-
-// ── PULA ─────────────────────────────────────────────────────────────────────
-function renderPula() {
-  document.getElementById('pula-count-bar').textContent = `Pozycji w puli: ${allPula.length}`;
-  const list = document.getElementById('pula-list');
-  if (!allPula.length) {
-    list.innerHTML = `<div class="empty"><div class="empty-icon">🗂️</div>Pula jest pusta. Dodaj pierwszą pozycję!</div>`;
-    return;
-  }
-  list.innerHTML = allPula.map(p => `
-    <div class="pula-card">
-      <div style="flex:1;min-width:0">
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
-          <span style="font-size:14px;font-weight:600">${esc(p.material||'—')}</span>
-          <span class="uwagi-badge uwagi-${esc(p.uwagi)}">${esc(p.uwagi)}</span>
+      <!-- ── EDYTOR PULI ── -->
+      <div class="screen" id="screen-pula">
+        <div class="appbar">
+          <button class="btn-back" onclick="goTo('home')">‹</button>
+          <div style="flex:1"><div class="appbar-title">Edytor puli</div></div>
+          <button class="btn-add" onclick="openAddPula()">+ Dodaj</button>
         </div>
-        <div style="font-size:12px;color:var(--muted)">${p.czas} min${p.ilosc!=null?' · Ilość: '+p.ilosc:''}</div>
+        <div class="count-bar" id="pula-count-bar"></div>
+        <div class="list" id="pula-list"></div>
       </div>
-      <div class="card-actions">
-        <button class="btn-icon btn-edit" onclick="openEditPula(${p.id})">✏️</button>
-        <button class="btn-icon btn-del"  onclick="askDelete('pula',${p.id},'${esc(p.material||p.uwagi)}')">🗑️</button>
+
+      <!-- ── BACKUP ── -->
+      <div class="screen" id="screen-backup">
+        <div class="appbar">
+          <button class="btn-back" onclick="goTo('home')">‹</button>
+          <div style="flex:1"><div class="appbar-title">Backup</div></div>
+        </div>
+        <div style="padding:12px;flex:1;overflow-y:auto">
+          <button class="btn btn-primary" style="width:100%;justify-content:center;margin-bottom:16px" onclick="makeBackup()">
+            💾 Utwórz backup teraz
+          </button>
+          <div style="font-size:13px;color:var(--muted);margin-bottom:10px">Ostatnie backupy (auto + ręczne):</div>
+          <div id="backup-list"><div class="empty"><div class="empty-icon">💾</div>Brak backupów</div></div>
+        </div>
       </div>
-    </div>`).join('');
-}
+    </div>
 
-function openAddPula() {
-  editingPulaId = null;
-  document.getElementById('modal-pula-title').textContent = 'Dodaj do puli';
-  document.getElementById('pula-material').value = '';
-  document.getElementById('pula-uwagi').value    = 'KP';
-  document.getElementById('pula-ilosc').value    = '';
-  document.getElementById('pula-czas').value     = '';
-  openModal('modal-pula');
-}
+    <!-- ── MODALS ── -->
 
-function openEditPula(id) {
-  const p = allPula.find(x => x.id === id);
-  if (!p) return;
-  editingPulaId = id;
-  document.getElementById('modal-pula-title').textContent = 'Edytuj pozycję puli';
-  document.getElementById('pula-material').value = p.material || '';
-  document.getElementById('pula-uwagi').value    = p.uwagi    || 'KP';
-  document.getElementById('pula-ilosc').value    = p.ilosc    != null ? p.ilosc : '';
-  document.getElementById('pula-czas').value     = p.czas     || '';
-  openModal('modal-pula');
-}
-
-async function savePula() {
-  const material = document.getElementById('pula-material').value.trim() || null;
-  const uwagi    = document.getElementById('pula-uwagi').value;
-  const iloscStr = document.getElementById('pula-ilosc').value.trim();
-  const czasStr  = document.getElementById('pula-czas').value.trim();
-  const ilosc    = iloscStr ? parseInt(iloscStr) : null;
-  const czas     = parseInt(czasStr);
-  if (!czas || czas <= 0) { toast('Podaj czas w minutach (> 0)'); return; }
-  const data = { material, uwagi, ilosc: ilosc ?? null, czas };
-  try {
-    if (editingPulaId) {
-      const { error } = await db.from('pula').update(data).eq('id', editingPulaId);
-      if (error) throw error;
-      toast('Zapisano zmiany');
-    } else {
-      const { error } = await db.from('pula').insert(data);
-      if (error) throw error;
-      toast('Dodano do puli');
-    }
-    closeModal('modal-pula');
-  } catch(e) { toast('Błąd: ' + e.message); }
-}
-
-// ── USUWANIE ─────────────────────────────────────────────────────────────────
-function askDelete(type, id, name) {
-  deleteType = type; deletingId = id;
-  document.getElementById('del-name').textContent = name;
-  openModal('modal-del');
-}
-
-async function confirmDelete() {
-  try {
-    const table = deleteType === 'item' ? 'items' : 'pula';
-    const { error } = await db.from(table).delete().eq('id', deletingId);
-    if (error) throw error;
-    toast('Usunięto');
-    closeModal('modal-del');
-  } catch(e) { toast('Błąd: ' + e.message); }
-}
-
-// ── BACKUP ────────────────────────────────────────────────────────────────────
-async function loadBackups() {
-  const { data, error } = await db.from('backups').select('*').order('created_at', { ascending: false }).limit(20);
-  const list = document.getElementById('backup-list');
-  if (error || !data?.length) {
-    list.innerHTML = `<div class="empty"><div class="empty-icon">💾</div>Brak backupów</div>`;
-    return;
-  }
-  list.innerHTML = data.map(b => `
-    <div class="backup-item">
-      <div class="backup-info">
-        <div class="backup-label">${esc(b.label)}</div>
-        <div class="backup-meta">${new Date(b.created_at).toLocaleString('pl-PL')} · ${(b.items_data||[]).length} pozycji · ${(b.pula_data||[]).length} w puli</div>
+    <!-- Dodaj/edytuj item -->
+    <div class="modal-bg" id="modal-item">
+      <div class="modal">
+        <div class="modal-title">
+          <span id="modal-item-title">Dodaj pozycję</span>
+          <div class="modal-close" onclick="closeModal('modal-item')">✕</div>
+        </div>
+        <div class="field"><label>Numer</label><input type="text" id="item-numer" placeholder="np. MP25056552C" /></div>
+        <div class="field"><label>Opis</label><input type="text" id="item-opis" placeholder="np. 1 Karton do KLT" /></div>
+        <div class="modal-btns">
+          <button class="btn btn-ghost" onclick="closeModal('modal-item')">Anuluj</button>
+          <button class="btn btn-primary" id="btn-save-item" onclick="saveItem()">Zapisz</button>
+        </div>
       </div>
-      <button class="btn-restore" onclick="askRestore(${b.id},'${esc(b.label)}')">Przywróć</button>
-    </div>`).join('');
-}
+    </div>
 
-async function makeBackup() {
-  try {
-    const label = 'manual_' + new Date().toISOString().slice(0,16).replace('T',' ');
-    const { error } = await db.from('backups').insert({
-      label,
-      items_data: allItems,
-      pula_data:  allPula
-    });
-    if (error) throw error;
-    toast('Backup utworzony!');
-    loadBackups();
-  } catch(e) { toast('Błąd backup: ' + e.message); }
-}
+    <!-- Dodaj/edytuj pula -->
+    <div class="modal-bg" id="modal-pula">
+      <div class="modal">
+        <div class="modal-title">
+          <span id="modal-pula-title">Dodaj do puli</span>
+          <div class="modal-close" onclick="closeModal('modal-pula')">✕</div>
+        </div>
+        <div class="field"><label>Materiał (opcjonalnie)</label><input type="text" id="pula-material" placeholder="np. Karton A" /></div>
+        <div class="field">
+          <label>Kategoria</label>
+          <select id="pula-uwagi">
+            <option value="KP">KP</option>
+            <option value="OP">OP</option>
+            <option value="WG">WG</option>
+          </select>
+        </div>
+        <div class="field"><label>Ilość (opcjonalnie)</label><input type="number" id="pula-ilosc" placeholder="np. 30" /></div>
+        <div class="field"><label>Czas (minuty) *</label><input type="number" id="pula-czas" placeholder="np. 20" min="1" /></div>
+        <div class="modal-btns">
+          <button class="btn btn-ghost" onclick="closeModal('modal-pula')">Anuluj</button>
+          <button class="btn btn-primary" onclick="savePula()">Zapisz</button>
+        </div>
+      </div>
+    </div>
 
-function askRestore(id, label) {
-  restoreBackupId = id;
-  document.getElementById('restore-label').textContent = label;
-  openModal('modal-restore');
-}
+    <!-- Potwierdź usunięcie -->
+    <div class="modal-bg" id="modal-del">
+      <div class="modal">
+        <div class="modal-title">
+          <span>Potwierdź usunięcie</span>
+          <div class="modal-close" onclick="closeModal('modal-del')">✕</div>
+        </div>
+        <div class="del-icon">🗑️</div>
+        <div class="del-msg">Czy na pewno chcesz usunąć?</div>
+        <div class="del-name" id="del-name"></div>
+        <div class="modal-btns">
+          <button class="btn btn-ghost" onclick="closeModal('modal-del')">Anuluj</button>
+          <button class="btn btn-danger" onclick="confirmDelete()">Usuń</button>
+        </div>
+      </div>
+    </div>
 
-async function confirmRestore() {
-  try {
-    const { data, error } = await db.from('backups').select('items_data,pula_data').eq('id', restoreBackupId).single();
-    if (error) throw error;
+    <!-- Potwierdź przywrócenie -->
+    <div class="modal-bg" id="modal-restore">
+      <div class="modal">
+        <div class="modal-title">
+          <span>Przywróć backup</span>
+          <div class="modal-close" onclick="closeModal('modal-restore')">✕</div>
+        </div>
+        <div class="del-icon">⚠️</div>
+        <div class="del-msg" style="text-align:center">To zastąpi WSZYSTKIE aktualne dane!</div>
+        <div class="del-name" id="restore-label"></div>
+        <div class="modal-btns">
+          <button class="btn btn-ghost" onclick="closeModal('modal-restore')">Anuluj</button>
+          <button class="btn btn-primary" onclick="confirmRestore()">Przywróć</button>
+        </div>
+      </div>
+    </div>
 
-    // Utwórz backup przed przywróceniem
-    await db.from('backups').insert({
-      label: 'przed_przywroceniem_' + new Date().toISOString().slice(0,16),
-      items_data: allItems,
-      pula_data:  allPula
-    });
+    <!-- QR -->
+    <div class="modal-bg" id="modal-qr">
+      <div class="modal">
+        <div class="modal-title">
+          <span>Udostępnij aplikację</span>
+          <div class="modal-close" onclick="closeModal('modal-qr')">✕</div>
+        </div>
+        <div class="qr-wrap"><div id="qrcode"></div></div>
+        <div class="qr-info">Zeskanuj kod QR aby otworzyć aplikację.<br />Wszyscy korzystają z tej samej bazy danych.</div>
+        <div class="modal-btns" style="margin-top:14px">
+          <button class="btn btn-ghost" onclick="copyLink()">📋 Kopiuj link</button>
+          <button class="btn btn-primary" onclick="closeModal('modal-qr')">Zamknij</button>
+        </div>
+      </div>
+    </div>
 
-    // Wyczyść i przywróć items
-    await db.from('items').delete().neq('id', 0);
-    if (data.items_data?.length) {
-      const clean = data.items_data.map(({ id, created_at, updated_at, ...rest }) => rest);
-      await db.from('items').insert(clean);
-    }
+    <div class="toast" id="toast"></div>
 
-    // Wyczyść i przywróć pula
-    await db.from('pula').delete().neq('id', 0);
-    if (data.pula_data?.length) {
-      const clean = data.pula_data.map(({ id, created_at, updated_at, ...rest }) => rest);
-      await db.from('pula').insert(clean);
-    }
+    <script>
+      // ── CONFIG — wbudowana w aplikację ───────────────────────────────────────────
+      // Zmień te dwie wartości na swoje dane z Supabase (Settings → API)
+      const SUPABASE_URL = 'https://ynyjarneuuykdkkosonf.supabase.co';
+      const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlueWphcm5ldXV5a2Rra29zb25mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE0ODg2NzgsImV4cCI6MjEwNzA2NDY3OH0.KBaJjUbst7TXX[...]';
 
-    closeModal('modal-restore');
-    toast('Przywrócono dane!');
-    await Promise.all([fetchItems(), fetchPula()]);
-  } catch(e) { toast('Błąd przywracania: ' + e.message); }
-}
+      let db = null;
+      let allItems = [];
+      let allPula = [];
+      let editingItemId = null;
+      let editingPulaId = null;
+      let deletingId = null;
+      let deleteType = null;
+      let restoreBackupId = null;
 
-// ── QR ────────────────────────────────────────────────────────────────────────
-function showQR() {
-  const url = window.location.href.split('?')[0];
-  const qrEl = document.getElementById('qrcode');
-  qrEl.innerHTML = '';
-  new QRCode(qrEl, { text: url, width: 200, height: 200, colorDark: '#1A1A18', colorLight: '#FFFFFF', correctLevel: QRCode.CorrectLevel.M });
-  openModal('modal-qr');
-}
+      // ── THEME ───────────────────────────────────────────────────────────────────
+      function initTheme() {
+        const saved = localStorage.getItem('theme') || 'light';
+        setTheme(saved);
+      }
 
-function copyLink() {
-  navigator.clipboard.writeText(window.location.href.split('?')[0])
-    .then(() => toast('Link skopiowany!'))
-    .catch(() => toast('Nie udało się skopiować'));
-}
+      function setTheme(theme) {
+        if (theme === 'dark') {
+          document.documentElement.setAttribute('data-theme', 'dark');
+          localStorage.setItem('theme', 'dark');
+        } else {
+          document.documentElement.removeAttribute('data-theme');
+          localStorage.setItem('theme', 'light');
+        }
+        updateThemeIcon();
+      }
 
-// ── UTILS ─────────────────────────────────────────────────────────────────────
-function openModal(id) { document.getElementById(id).classList.add('open'); }
-function closeModal(id) { document.getElementById(id).classList.remove('open'); }
-document.querySelectorAll('.modal-bg').forEach(bg => {
-  bg.addEventListener('click', e => { if (e.target === bg) bg.classList.remove('open'); });
-});
+      function toggleTheme() {
+        const current = document.documentElement.getAttribute('data-theme');
+        setTheme(current === 'dark' ? 'light' : 'dark');
+      }
 
-let toastTimer;
-function toast(msg) {
-  const el = document.getElementById('toast');
-  el.textContent = msg; el.classList.add('show');
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => el.classList.remove('show'), 2500);
-}
+      function updateThemeIcon() {
+        const btn = document.querySelector('.theme-toggle');
+        if (btn) {
+          const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+          btn.textContent = isDark ? '☀️' : '🌙';
+        }
+      }
 
-function esc(s) {
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
-}
+      // ── INIT ────────────────────────────────────────────────────────────────
+      async function startApp(cfg) {
+        initTheme();
+        document.getElementById('loading').style.display = 'flex';
 
-function setBusy(btnId, busy) {
-  const btn = document.getElementById(btnId);
-  if (btn) { btn.disabled = busy; btn.textContent = busy ? '…' : 'Zapisz'; }
-}
+        try {
+          db = window.supabase.createClient(cfg.url, cfg.key);
 
-// ── START ─────────────────────────────────────────────────────────────────────
-startApp({ url: SUPABASE_URL, key: SUPABASE_KEY });
-</script>
-</body>
+          const { error } = await db.from('items').select('count', { count: 'exact', head: true });
+          if (error) throw error;
+
+          await Promise.all([fetchItems(), fetchPula()]);
+
+          db.channel('db-changes')
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'items' }, () => fetchItems())
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'pula' }, () => fetchPula())
+            .subscribe();
+
+          document.getElementById('loading').style.display = 'none';
+          document.getElementById('app').style.display = '';
+        } catch (e) {
+          document.getElementById('loading').innerHTML = `
+            <div style="text-align:center;padding:32px;max-width:360px">
+              <div style="font-size:36px;margin-bottom:12px">⚠️</div>
+              <div style="font-size:16px;font-weight:600;margin-bottom:8px;color:#E24B4A">Błąd połączenia</div>
+              <div style="font-size:13px;color:#9099AA;margin-bottom:20px">${e.message}</div>
+              <button class="btn btn-ghost" onclick="resetConfig()">Zmień dane połączenia</button>
+            </div>`;
+        }
+      }
+
+      function resetConfig() {
+        location.reload();
+      }
+
+      // ── FETCH ───────────────────────────────────────────────────────────────
+      async function fetchItems() {
+        const { data, error } = await db.from('items').select('*').order('numer');
+        if (!error) {
+          allItems = data || [];
+          filterItems();
+          updateHomeSub();
+        }
+      }
+
+      async function fetchPula() {
+        const { data, error } = await db.from('pula').select('*').order('uwagi');
+        if (!error) {
+          allPula = data || [];
+          renderPula();
+          updateHomeSub();
+        }
+      }
+
+      // ── NAWIGACJA ────────────────────────────────────────────────────────────
+      function goTo(name) {
+        document.querySelectorAll('.screen').forEach((s) => s.classList.remove('active'));
+        document.getElementById('screen-' + name).classList.add('active');
+
+        if (name === 'wyszukiwarka') {
+          document.getElementById('search-input').value = '';
+          filterItems();
+        }
+
+        if (name === 'backup') {
+          loadBackups();
+        }
+      }
+
+      function updateHomeSub() {
+        document.getElementById('home-sub').textContent = `⬤ ${allItems.length} pozycji · ${allPula.length} w puli`;
+      }
+
+      // ── WYSZUKIWARKA ─────────────────────────────────────────────────────────
+      function filterItems() {
+        const q = (document.getElementById('search-input')?.value || '').toLowerCase().trim();
+        const filtered = q
+          ? allItems.filter((i) => (i.numer || '').toLowerCase().includes(q) || (i.opis || '').toLowerCase().includes(q))
+          : allItems;
+
+        const list = document.getElementById('items-list');
+        document.getElementById('count-bar').textContent = `Znaleziono: ${filtered.length} / ${allItems.length}`;
+
+        if (!filtered.length) {
+          list.innerHTML = `<div class="empty"><div class="empty-icon">📭</div>${q ? 'Brak wyników' : 'Brak pozycji. Dodaj pierwszą!'}</div>`;
+          return;
+        }
+
+        list.innerHTML = filtered.map((item, idx) => `
+          <div class="card">
+            <div class="badge">#${idx + 1}</div>
+            <div class="card-body">
+              <div class="card-title">${esc(item.numer || '—')}</div>
+              <div class="card-sub">${esc(item.opis || '—')}</div>
+            </div>
+            <div class="card-actions">
+              <button class="btn-icon btn-edit" onclick="openEditItem(${item.id})">✏️</button>
+              <button class="btn-icon btn-del" onclick="askDelete('item',${item.id},'${esc(item.numer || '')}')">🗑️</button>
+            </div>
+          </div>
+        `).join('');
+      }
+
+      function openAddItem() {
+        editingItemId = null;
+        document.getElementById('modal-item-title').textContent = 'Dodaj pozycję';
+        document.getElementById('item-numer').value = '';
+        document.getElementById('item-opis').value = '';
+        openModal('modal-item');
+      }
+
+      function openEditItem(id) {
+        const item = allItems.find((i) => i.id === id);
+        if (!item) return;
+
+        editingItemId = id;
+        document.getElementById('modal-item-title').textContent = 'Edytuj pozycję';
+        document.getElementById('item-numer').value = item.numer || '';
+        document.getElementById('item-opis').value = item.opis || '';
+        openModal('modal-item');
+      }
+
+      async function saveItem() {
+        const numer = document.getElementById('item-numer').value.trim();
+        const opis = document.getElementById('item-opis').value.trim();
+
+        if (!numer || !opis) {
+          toast('Wypełnij wszystkie pola');
+          return;
+        }
+
+        setBusy('btn-save-item', true);
+
+        try {
+          if (editingItemId) {
+            const { error } = await db.from('items').update({ numer, opis }).eq('id', editingItemId);
+            if (error) throw error;
+            toast('Zapisano zmiany');
+          } else {
+            const { error } = await db.from('items').insert({ numer, opis });
+            if (error) throw error;
+            toast('Dodano pozycję');
+          }
+
+          closeModal('modal-item');
+        } catch (e) {
+          toast('Błąd: ' + e.message);
+        } finally {
+          setBusy('btn-save-item', false);
+        }
+      }
+
+      // ── PULA ────────────────────────────────────────────────────────────────
+      function renderPula() {
+        document.getElementById('pula-count-bar').textContent = `Pozycji w puli: ${allPula.length}`;
+        const list = document.getElementById('pula-list');
+
+        if (!allPula.length) {
+          list.innerHTML = `<div class="empty"><div class="empty-icon">🗂️</div>Pula jest pusta. Dodaj pierwszą pozycję!</div>`;
+          return;
+        }
+
+        list.innerHTML = allPula.map((p) => `
+          <div class="pula-card">
+            <div style="flex:1;min-width:0">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+                <span style="font-size:14px;font-weight:600">${esc(p.material || '—')}</span>
+                <span class="uwagi-badge uwagi-${esc(p.uwagi)}">${esc(p.uwagi)}</span>
+              </div>
+              <div style="font-size:12px;color:var(--muted)">${p.czas} min${p.ilosc != null ? ' · Ilość: ' + p.ilosc : ''}</div>
+            </div>
+            <div class="card-actions">
+              <button class="btn-icon btn-edit" onclick="openEditPula(${p.id})">✏️</button>
+              <button class="btn-icon btn-del" onclick="askDelete('pula',${p.id},'${esc(p.material || p.uwagi)}')">🗑️</button>
+            </div>
+          </div>
+        `).join('');
+      }
+
+      function openAddPula() {
+        editingPulaId = null;
+        document.getElementById('modal-pula-title').textContent = 'Dodaj do puli';
+        document.getElementById('pula-material').value = '';
+        document.getElementById('pula-uwagi').value = 'KP';
+        document.getElementById('pula-ilosc').value = '';
+        document.getElementById('pula-czas').value = '';
+        openModal('modal-pula');
+      }
+
+      function openEditPula(id) {
+        const p = allPula.find((x) => x.id === id);
+        if (!p) return;
+
+        editingPulaId = id;
+        document.getElementById('modal-pula-title').textContent = 'Edytuj pozycję puli';
+        document.getElementById('pula-material').value = p.material || '';
+        document.getElementById('pula-uwagi').value = p.uwagi || 'KP';
+        document.getElementById('pula-ilosc').value = p.ilosc != null ? p.ilosc : '';
+        document.getElementById('pula-czas').value = p.czas || '';
+        openModal('modal-pula');
+      }
+
+      async function savePula() {
+        const material = document.getElementById('pula-material').value.trim() || null;
+        const uwagi = document.getElementById('pula-uwagi').value;
+        const iloscStr = document.getElementById('pula-ilosc').value.trim();
+        const czasStr = document.getElementById('pula-czas').value.trim();
+        const ilosc = iloscStr ? parseInt(iloscStr, 10) : null;
+        const czas = parseInt(czasStr, 10);
+
+        if (!czas || czas <= 0) {
+          toast('Podaj czas w minutach (> 0)');
+          return;
+        }
+
+        const data = { material, uwagi, ilosc: ilosc ?? null, czas };
+
+        try {
+          if (editingPulaId) {
+            const { error } = await db.from('pula').update(data).eq('id', editingPulaId);
+            if (error) throw error;
+            toast('Zapisano zmiany');
+          } else {
+            const { error } = await db.from('pula').insert(data);
+            if (error) throw error;
+            toast('Dodano do puli');
+          }
+
+          closeModal('modal-pula');
+        } catch (e) {
+          toast('Błąd: ' + e.message);
+        }
+      }
+
+      // ── USUWANIE ───────────────────────────────────────────────────────────
+      function askDelete(type, id, name) {
+        deleteType = type;
+        deletingId = id;
+        document.getElementById('del-name').textContent = name;
+        openModal('modal-del');
+      }
+
+      async function confirmDelete() {
+        try {
+          const table = deleteType === 'item' ? 'items' : 'pula';
+          const { error } = await db.from(table).delete().eq('id', deletingId);
+          if (error) throw error;
+          toast('Usunięto');
+          closeModal('modal-del');
+        } catch (e) {
+          toast('Błąd: ' + e.message);
+        }
+      }
+
+      // ── BACKUP ───────────────────────────────────────────────────────────────
+      async function loadBackups() {
+        const { data, error } = await db.from('backups').select('*').order('created_at', { ascending: false }).limit(20);
+        const list = document.getElementById('backup-list');
+
+        if (error || !data?.length) {
+          list.innerHTML = `<div class="empty"><div class="empty-icon">💾</div>Brak backupów</div>`;
+          return;
+        }
+
+        list.innerHTML = data.map((b) => `
+          <div class="backup-item">
+            <div class="backup-info">
+              <div class="backup-label">${esc(b.label)}</div>
+              <div class="backup-meta">${new Date(b.created_at).toLocaleString('pl-PL')} · ${(b.items_data || []).length} pozycji · ${(b.pula_data || []).length} w puli</div>
+            </div>
+            <button class="btn-restore" onclick="askRestore(${b.id},'${esc(b.label)}')">Przywróć</button>
+          </div>
+        `).join('');
+      }
+
+      async function makeBackup() {
+        try {
+          const label = 'manual_' + new Date().toISOString().slice(0, 16).replace('T', ' ');
+          const { error } = await db.from('backups').insert({
+            label,
+            items_data: allItems,
+            pula_data: allPula,
+          });
+
+          if (error) throw error;
+          toast('Backup utworzony!');
+          loadBackups();
+        } catch (e) {
+          toast('Błąd backup: ' + e.message);
+        }
+      }
+
+      function askRestore(id, label) {
+        restoreBackupId = id;
+        document.getElementById('restore-label').textContent = label;
+        openModal('modal-restore');
+      }
+
+      async function confirmRestore() {
+        try {
+          const { data, error } = await db.from('backups').select('items_data,pula_data').eq('id', restoreBackupId).single();
+          if (error) throw error;
+
+          // Utwórz backup przed przywróceniem
+          await db.from('backups').insert({
+            label: 'przed_przywroceniem_' + new Date().toISOString().slice(0, 16),
+            items_data: allItems,
+            pula_data: allPula,
+          });
+
+          // Wyczyść i przywróć items
+          await db.from('items').delete().neq('id', 0);
+          if (data.items_data?.length) {
+            const clean = data.items_data.map(({ id, created_at, updated_at, ...rest }) => rest);
+            await db.from('items').insert(clean);
+          }
+
+          // Wyczyść i przywróć pula
+          await db.from('pula').delete().neq('id', 0);
+          if (data.pula_data?.length) {
+            const clean = data.pula_data.map(({ id, created_at, updated_at, ...rest }) => rest);
+            await db.from('pula').insert(clean);
+          }
+
+          closeModal('modal-restore');
+          toast('Przywrócono dane!');
+          await Promise.all([fetchItems(), fetchPula()]);
+        } catch (e) {
+          toast('Błąd przywracania: ' + e.message);
+        }
+      }
+
+      // ── QR ────────────────────────────────────────────────────────────────
+      function showQR() {
+        const url = window.location.href.split('?')[0];
+        const qrEl = document.getElementById('qrcode');
+        qrEl.innerHTML = '';
+        new QRCode(qrEl, {
+          text: url,
+          width: 200,
+          height: 200,
+          colorDark: '#1A1A18',
+          colorLight: '#FFFFFF',
+          correctLevel: QRCode.CorrectLevel.M,
+        });
+        openModal('modal-qr');
+      }
+
+      function copyLink() {
+        navigator.clipboard.writeText(window.location.href.split('?')[0])
+          .then(() => toast('Link skopiowany!'))
+          .catch(() => toast('Nie udało się skopiować'));
+      }
+
+      // ── UTILS ───────────────────────────────────────────────────────────────
+      function openModal(id) {
+        document.getElementById(id).classList.add('open');
+      }
+
+      function closeModal(id) {
+        document.getElementById(id).classList.remove('open');
+      }
+
+      document.querySelectorAll('.modal-bg').forEach((bg) => {
+        bg.addEventListener('click', (e) => {
+          if (e.target === bg) bg.classList.remove('open');
+        });
+      });
+
+      let toastTimer;
+      function toast(msg) {
+        const el = document.getElementById('toast');
+        el.textContent = msg;
+        el.classList.add('show');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => el.classList.remove('show'), 2500);
+      }
+
+      function esc(s) {
+        return String(s)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#39;');
+      }
+
+      function setBusy(btnId, busy) {
+        const btn = document.getElementById(btnId);
+        if (btn) {
+          btn.disabled = busy;
+          btn.textContent = busy ? '…' : 'Zapisz';
+        }
+      }
+
+      // ── START ───────────────────────────────────────────────────────────────
+      startApp({ url: SUPABASE_URL, key: SUPABASE_KEY });
+    </script>
+  </body>
 </html>
