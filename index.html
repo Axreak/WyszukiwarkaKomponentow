@@ -55,6 +55,10 @@
         --orange-bg: #2c2410;
       }
 
+      html {
+        transition: background-color 0.3s ease, color 0.3s ease;
+      }
+
       .theme-toggle {
         background: none;
         border: none;
@@ -63,6 +67,15 @@
         padding: 4px;
         line-height: 1;
         color: var(--txt);
+        transition: transform 0.3s ease, opacity 0.3s ease;
+      }
+
+      .theme-toggle:active {
+        transform: scale(0.9);
+      }
+
+      .theme-toggle:hover {
+        opacity: 0.8;
       }
 
       * {
@@ -79,6 +92,7 @@
         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
         color: var(--txt);
         font-size: 15px;
+        transition: background-color 0.3s ease, color 0.3s ease;
       }
 
       .app {
@@ -97,6 +111,7 @@
         align-items: center;
         gap: 10px;
         flex-shrink: 0;
+        transition: background-color 0.3s ease, border-color 0.3s ease;
       }
 
       .appbar-title {
@@ -109,6 +124,7 @@
         font-size: 12px;
         color: var(--muted);
         margin-top: 1px;
+        transition: color 0.3s ease;
       }
 
       .content {
@@ -121,10 +137,16 @@
         display: none;
         flex-direction: column;
         height: 100%;
+        animation: fadeIn 0.3s ease;
       }
 
       .screen.active {
         display: flex;
+      }
+
+      @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
       }
 
       /* Home */
@@ -146,12 +168,21 @@
         align-items: center;
         gap: 16px;
         cursor: pointer;
-        transition: background 0.1s;
+        transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
         user-select: none;
       }
 
       .tile:active {
         background: var(--bg);
+        transform: scale(0.98);
+      }
+
+      .tile:hover {
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      [data-theme="dark"] .tile:hover {
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
       }
 
       .tile-icon {
@@ -163,6 +194,11 @@
         justify-content: center;
         font-size: 24px;
         flex-shrink: 0;
+        transition: transform 0.3s ease;
+      }
+
+      .tile:active .tile-icon {
+        transform: scale(0.95);
       }
 
       .tile-blue { background: var(--accent-bg); }
@@ -184,11 +220,13 @@
         font-size: 12px;
         color: var(--muted);
         line-height: 1.4;
+        transition: color 0.3s ease;
       }
 
       .tile-arr {
         font-size: 20px;
         color: var(--muted);
+        transition: color 0.3s ease;
       }
 
       /* Search */
@@ -205,6 +243,7 @@
         display: flex;
         align-items: center;
         gap: 8px;
+        transition: border-color 0.3s ease, background-color 0.3s ease;
       }
 
       .search-box input {
@@ -214,6 +253,7 @@
         color: var(--txt);
         background: transparent;
         width: 100%;
+        transition: color 0.3s ease;
       }
 
       .count-bar {
@@ -221,6 +261,7 @@
         font-size: 12px;
         color: var(--muted);
         flex-shrink: 0;
+        transition: color 0.3s ease;
       }
 
       /* Cards */
@@ -240,10 +281,32 @@
         gap: 10px;
         margin-bottom: 8px;
         cursor: pointer;
+        transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+        animation: slideIn 0.3s ease;
+      }
+
+      @keyframes slideIn {
+        from { 
+          opacity: 0;
+          transform: translateX(-10px);
+        }
+        to { 
+          opacity: 1;
+          transform: translateX(0);
+        }
       }
 
       .card:active {
         background: var(--bg);
+        transform: scale(0.98);
+      }
+
+      .card:hover {
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+      }
+
+      [data-theme="dark"] .card:hover {
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
       }
 
       .badge {
@@ -258,6 +321,11 @@
         font-size: 11px;
         font-weight: 600;
         flex-shrink: 0;
+        transition: transform 0.3s ease;
+      }
+
+      .card:active .badge {
+        transform: scale(0.9);
       }
 
       .card-body {
@@ -277,6 +345,7 @@
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
+        transition: color 0.3s ease;
       }
 
       .card-actions {
@@ -295,16 +364,23 @@
         cursor: pointer;
         font-size: 15px;
         flex-shrink: 0;
+        transition: transform 0.2s ease, opacity 0.2s ease;
+      }
+
+      .btn-icon:active {
+        transform: scale(0.9);
       }
 
       .btn-edit {
         background: var(--accent-bg);
         color: var(--accent-tx);
+        transition: background-color 0.3s ease, color 0.3s ease;
       }
 
       .btn-del {
         background: var(--danger-bg);
         color: var(--danger);
+        transition: background-color 0.3s ease, color 0.3s ease;
       }
 
       .pula-card {
@@ -316,6 +392,8 @@
         align-items: center;
         gap: 10px;
         margin-bottom: 8px;
+        transition: background-color 0.3s ease, border-color 0.3s ease;
+        animation: slideIn 0.3s ease;
       }
 
       .uwagi-badge {
@@ -323,6 +401,7 @@
         border-radius: 5px;
         font-size: 11px;
         font-weight: 600;
+        transition: background-color 0.3s ease, color 0.3s ease;
       }
 
       .uwagi-KP { background: #faeeda; color: #633806; }
@@ -340,11 +419,17 @@
         display: inline-flex;
         align-items: center;
         gap: 6px;
+        transition: all 0.2s ease;
+      }
+
+      .btn:active {
+        transform: scale(0.95);
       }
 
       .btn-primary {
         background: var(--accent);
         color: #fff;
+        transition: background-color 0.3s ease;
       }
 
       .btn-primary:active {
@@ -355,11 +440,13 @@
         background: var(--bg);
         border: 1px solid var(--border2);
         color: var(--txt2);
+        transition: all 0.3s ease;
       }
 
       .btn-danger {
         background: var(--danger);
         color: #fff;
+        transition: background-color 0.3s ease;
       }
 
       .btn-add {
@@ -371,6 +458,7 @@
         font-size: 13px;
         font-weight: 500;
         cursor: pointer;
+        transition: all 0.2s ease;
       }
 
       .btn-back {
@@ -386,6 +474,11 @@
         cursor: pointer;
         font-size: 18px;
         flex-shrink: 0;
+        transition: all 0.2s ease;
+      }
+
+      .btn-back:active {
+        transform: scale(0.9);
       }
 
       /* Empty */
@@ -394,11 +487,19 @@
         padding: 60px 20px 20px;
         color: var(--muted);
         font-size: 14px;
+        animation: fadeIn 0.4s ease;
+        transition: color 0.3s ease;
       }
 
       .empty-icon {
         font-size: 40px;
         margin-bottom: 12px;
+        animation: bounce 0.6s ease;
+      }
+
+      @keyframes bounce {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-10px); }
       }
 
       /* Modal */
@@ -410,10 +511,16 @@
         display: none;
         align-items: flex-end;
         justify-content: center;
+        animation: fadeInModal 0.2s ease;
       }
 
       .modal-bg.open {
         display: flex;
+      }
+
+      @keyframes fadeInModal {
+        from { background: rgba(0, 0, 0, 0); }
+        to { background: rgba(0, 0, 0, 0.45); }
       }
 
       .modal {
@@ -424,6 +531,13 @@
         max-width: 500px;
         max-height: 90vh;
         overflow-y: auto;
+        animation: slideUp 0.3s ease;
+        transition: background-color 0.3s ease;
+      }
+
+      @keyframes slideUp {
+        from { transform: translateY(100%); }
+        to { transform: translateY(0); }
       }
 
       .modal-title {
@@ -447,6 +561,11 @@
         cursor: pointer;
         font-size: 17px;
         color: var(--txt);
+        transition: all 0.2s ease;
+      }
+
+      .modal-close:active {
+        transform: scale(0.9);
       }
 
       .field {
@@ -458,6 +577,7 @@
         color: var(--muted);
         display: block;
         margin-bottom: 5px;
+        transition: color 0.3s ease;
       }
 
       .field input,
@@ -472,11 +592,18 @@
         background: var(--bg);
         outline: none;
         font-family: inherit;
+        transition: all 0.3s ease;
       }
 
       .field input:focus,
       .field select:focus {
         border-color: var(--accent);
+        box-shadow: 0 0 0 3px rgba(55, 138, 221, 0.1);
+      }
+
+      [data-theme="dark"] .field input:focus,
+      [data-theme="dark"] .field select:focus {
+        box-shadow: 0 0 0 3px rgba(74, 158, 224, 0.2);
       }
 
       .modal-btns {
@@ -500,6 +627,16 @@
         display: flex;
         align-items: center;
         gap: 10px;
+        animation: slideIn 0.3s ease;
+        transition: all 0.3s ease;
+      }
+
+      .backup-item:hover {
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+      }
+
+      [data-theme="dark"] .backup-item:hover {
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
       }
 
       .backup-info {
@@ -515,6 +652,7 @@
         font-size: 12px;
         color: var(--muted);
         margin-top: 2px;
+        transition: color 0.3s ease;
       }
 
       .btn-restore {
@@ -526,6 +664,11 @@
         font-size: 12px;
         font-weight: 500;
         cursor: pointer;
+        transition: all 0.2s ease;
+      }
+
+      .btn-restore:active {
+        transform: scale(0.95);
       }
 
       /* QR */
@@ -533,6 +676,7 @@
         display: flex;
         justify-content: center;
         padding: 16px 0;
+        animation: fadeIn 0.3s ease;
       }
 
       .qr-info {
@@ -541,6 +685,7 @@
         text-align: center;
         margin-top: 8px;
         line-height: 1.5;
+        transition: color 0.3s ease;
       }
 
       /* Toast */
@@ -556,7 +701,7 @@
         font-size: 13px;
         z-index: 999;
         opacity: 0;
-        transition: opacity 0.3s;
+        transition: opacity 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
         pointer-events: none;
       }
 
@@ -575,6 +720,7 @@
         flex-direction: column;
         gap: 12px;
         z-index: 200;
+        transition: background-color 0.3s ease;
       }
 
       .spinner {
@@ -584,6 +730,7 @@
         border-top-color: var(--accent);
         border-radius: 50%;
         animation: spin 0.7s linear infinite;
+        transition: border-color 0.3s ease;
       }
 
       @keyframes spin {
@@ -593,6 +740,8 @@
       .loading-txt {
         font-size: 14px;
         color: var(--muted);
+        animation: fadeIn 0.5s ease;
+        transition: color 0.3s ease;
       }
 
       /* Config screen */
@@ -602,12 +751,14 @@
         border-radius: var(--radius);
         padding: 14px;
         margin-bottom: 12px;
+        transition: all 0.3s ease;
       }
 
       .config-label {
         font-size: 12px;
         color: var(--muted);
         margin-bottom: 6px;
+        transition: color 0.3s ease;
       }
 
       .config-val {
@@ -615,12 +766,20 @@
         color: var(--txt);
         word-break: break-all;
         font-family: monospace;
+        transition: color 0.3s ease;
       }
 
       .del-icon {
         font-size: 36px;
         text-align: center;
         margin-bottom: 8px;
+        animation: swing 0.6s ease;
+      }
+
+      @keyframes swing {
+        0%, 100% { transform: rotate(0deg); }
+        25% { transform: rotate(-3deg); }
+        75% { transform: rotate(3deg); }
       }
 
       .del-msg {
@@ -628,6 +787,7 @@
         color: var(--txt2);
         text-align: center;
         margin-bottom: 4px;
+        transition: color 0.3s ease;
       }
 
       .del-name {
@@ -635,6 +795,7 @@
         font-weight: 600;
         text-align: center;
         margin-bottom: 4px;
+        animation: fadeIn 0.4s ease;
       }
 
       /* Realtime dot */
@@ -646,6 +807,7 @@
         display: inline-block;
         margin-right: 4px;
         animation: pulse 2s infinite;
+        transition: background 0.3s ease;
       }
 
       @keyframes pulse {
@@ -668,7 +830,7 @@
             <div class="appbar-title">🗂️ Baza danych</div>
             <div class="appbar-sub" id="home-sub">Wczytywanie…</div>
           </div>
-          <button class="theme-toggle" onclick="toggleTheme()" title="Przełącz motyw">🌙</button>
+          <button class="theme-toggle" onclick="toggleTheme()" title="Przełącz motyw">���</button>
         </div>
 
         <div class="home-tiles">
@@ -707,7 +869,7 @@
               <div class="tile-name">Udostępnij QR</div>
               <div class="tile-desc">Kod QR do aplikacji dla innych</div>
             </div>
-            <div class="tile-arr">��</div>
+            <div class="tile-arr">›</div>
           </div>
         </div>
       </div>
@@ -854,7 +1016,7 @@
     <div class="toast" id="toast"></div>
 
     <script>
-      // ── CONFIG — wbudowana w aplikację ───────────────────────────────────────────
+      // ── CONFIG — wbudowana w aplikację ────────────────────────────��──────────────
       // Zmień te dwie wartości na swoje dane z Supabase (Settings → API)
       const SUPABASE_URL = 'https://ynyjarneuuykdkkosonf.supabase.co';
       const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlueWphcm5ldXV5a2Rra29zb25mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE0ODg2NzgsImV4cCI6MjEwNzA2NDY3OH0.KBaJjUbst7TXX[...]';
@@ -870,8 +1032,22 @@
 
       // ── THEME ───────────────────────────────────────────────────────────────────
       function initTheme() {
-        const saved = localStorage.getItem('theme') || 'light';
+        let saved = localStorage.getItem('theme');
+        
+        if (!saved) {
+          // Sprawdź preferencje systemu operacyjnego
+          const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+          saved = prefersDark ? 'dark' : 'light';
+        }
+        
         setTheme(saved);
+        
+        // Obserwuj zmiany preferencji systemu
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+          if (!localStorage.getItem('theme')) {
+            setTheme(e.matches ? 'dark' : 'light');
+          }
+        });
       }
 
       function setTheme(theme) {
@@ -898,7 +1074,7 @@
         }
       }
 
-      // ── INIT ────────────────────────────────────────────────────────────────
+      // ── INIT ────────────────────────────────────────────────────────────────────
       async function startApp(cfg) {
         initTheme();
         document.getElementById('loading').style.display = 'flex';
@@ -933,7 +1109,7 @@
         location.reload();
       }
 
-      // ── FETCH ───────────────────────────────────────────────────────────────
+      // ── FETCH ───────────────────────────────────────────────────────────────────
       async function fetchItems() {
         const { data, error } = await db.from('items').select('*').order('numer');
         if (!error) {
@@ -952,7 +1128,7 @@
         }
       }
 
-      // ── NAWIGACJA ────────────────────────────────────────────────────────────
+      // ── NAWIGACJA ────────────────────────────────────────────────────────────────
       function goTo(name) {
         document.querySelectorAll('.screen').forEach((s) => s.classList.remove('active'));
         document.getElementById('screen-' + name).classList.add('active');
@@ -971,7 +1147,7 @@
         document.getElementById('home-sub').textContent = `⬤ ${allItems.length} pozycji · ${allPula.length} w puli`;
       }
 
-      // ── WYSZUKIWARKA ─────────────────────────────────────────────────────────
+      // ── WYSZUKIWARKA ─────────────────────────────────────────────────────────────
       function filterItems() {
         const q = (document.getElementById('search-input')?.value || '').toLowerCase().trim();
         const filtered = q
@@ -1050,7 +1226,7 @@
         }
       }
 
-      // ── PULA ────────────────────────────────────────────────────────────────
+      // ── PULA ────────────��───────────────────────────────────────────────────────
       function renderPula() {
         document.getElementById('pula-count-bar').textContent = `Pozycji w puli: ${allPula.length}`;
         const list = document.getElementById('pula-list');
@@ -1132,7 +1308,7 @@
         }
       }
 
-      // ── USUWANIE ───────────────────────────────────────────────────────────
+      // ── USUWANIE ─────────��─────────────────────────────────────────────────────
       function askDelete(type, id, name) {
         deleteType = type;
         deletingId = id;
@@ -1152,7 +1328,7 @@
         }
       }
 
-      // ── BACKUP ───────────────────────────────────────────────────────────────
+      // ── BACKUP ──────────────────────────────────────────────────────────────────
       async function loadBackups() {
         const { data, error } = await db.from('backups').select('*').order('created_at', { ascending: false }).limit(20);
         const list = document.getElementById('backup-list');
@@ -1230,7 +1406,7 @@
         }
       }
 
-      // ── QR ────────────────────────────────────────────────────────────────
+      // ── QR ──────────────────────────────────────────────────────────────────────
       function showQR() {
         const url = window.location.href.split('?')[0];
         const qrEl = document.getElementById('qrcode');
@@ -1252,7 +1428,7 @@
           .catch(() => toast('Nie udało się skopiować'));
       }
 
-      // ── UTILS ───────────────────────────────────────────────────────────────
+      // ── UTILS ───────────────────────────────────────────────────────────────────
       function openModal(id) {
         document.getElementById(id).classList.add('open');
       }
@@ -1293,7 +1469,7 @@
         }
       }
 
-      // ── START ───────────────────────────────────────────────────────────────
+      // ── START ──────────────────────────────────��────────────────────────────────
       startApp({ url: SUPABASE_URL, key: SUPABASE_KEY });
     </script>
   </body>
