@@ -332,10 +332,10 @@ html,body{height:100%;background:var(--bg);font-family:-apple-system,BlinkMacSys
 <script>
 // ── CONFIG — wbudowana w aplikację ───────────────────────────────────────────
 // Zmień te dwie wartości na swoje dane z Supabase (Settings → API)
-const SUPABASE_URL = 'https://ynyjarneuuykdkkosonf.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlueWphcm5ldXV5a2Rra29zb25mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE0ODg2NzgsImV4cCI6MjEwNzA2NDY3OH0.KBaJjUbst7TXX0A_6hUMyVNotXZZoLu7HLWzPELo0j0';
+const SUPABASE_URL = 'https://TWOJ_PROJEKT.supabase.co';
+const SUPABASE_KEY = 'TWOJ_ANON_KEY';
 
-let supabase = null;
+let db = null;
 let allItems = [];
 let allPula  = [];
 let editingItemId = null;
@@ -349,16 +349,16 @@ async function startApp(cfg) {
   document.getElementById('loading').style.display = 'flex';
 
   try {
-    supabase = window.supabase.createClient(cfg.url, cfg.key);
+    db = window.supabase.createClient(cfg.url, cfg.key);
 
     // Test połączenia
-    const { error } = await supabase.from('items').select('count', { count: 'exact', head: true });
+    const { error } = await db.from('items').select('count', { count: 'exact', head: true });
     if (error) throw error;
 
     await Promise.all([fetchItems(), fetchPula()]);
 
     // Realtime subscriptions
-    supabase.channel('db-changes')
+    db.channel('db-changes')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'items' }, () => fetchItems())
       .on('postgres_changes', { event: '*', schema: 'public', table: 'pula' },  () => fetchPula())
       .subscribe();
@@ -383,12 +383,12 @@ function resetConfig() {
 
 // ── FETCH ─────────────────────────────────────────────────────────────────────
 async function fetchItems() {
-  const { data, error } = await supabase.from('items').select('*').order('numer');
+  const { data, error } = await db.from('items').select('*').order('numer');
   if (!error) { allItems = data || []; filterItems(); updateHomeSub(); }
 }
 
 async function fetchPula() {
-  const { data, error } = await supabase.from('pula').select('*').order('uwagi');
+  const { data, error } = await db.from('pula').select('*').order('uwagi');
   if (!error) { allPula = data || []; renderPula(); updateHomeSub(); }
 }
 
@@ -456,11 +456,11 @@ async function saveItem() {
   setBusy('btn-save-item', true);
   try {
     if (editingItemId) {
-      const { error } = await supabase.from('items').update({ numer, opis }).eq('id', editingItemId);
+      const { error } = await db.from('items').update({ numer, opis }).eq('id', editingItemId);
       if (error) throw error;
       toast('Zapisano zmiany');
     } else {
-      const { error } = await supabase.from('items').insert({ numer, opis });
+      const { error } = await db.from('items').insert({ numer, opis });
       if (error) throw error;
       toast('Dodano pozycję');
     }
@@ -526,11 +526,11 @@ async function savePula() {
   const data = { material, uwagi, ilosc: ilosc ?? null, czas };
   try {
     if (editingPulaId) {
-      const { error } = await supabase.from('pula').update(data).eq('id', editingPulaId);
+      const { error } = await db.from('pula').update(data).eq('id', editingPulaId);
       if (error) throw error;
       toast('Zapisano zmiany');
     } else {
-      const { error } = await supabase.from('pula').insert(data);
+      const { error } = await db.from('pula').insert(data);
       if (error) throw error;
       toast('Dodano do puli');
     }
@@ -548,7 +548,7 @@ function askDelete(type, id, name) {
 async function confirmDelete() {
   try {
     const table = deleteType === 'item' ? 'items' : 'pula';
-    const { error } = await supabase.from(table).delete().eq('id', deletingId);
+    const { error } = await db.from(table).delete().eq('id', deletingId);
     if (error) throw error;
     toast('Usunięto');
     closeModal('modal-del');
@@ -557,7 +557,7 @@ async function confirmDelete() {
 
 // ── BACKUP ────────────────────────────────────────────────────────────────────
 async function loadBackups() {
-  const { data, error } = await supabase.from('backups').select('*').order('created_at', { ascending: false }).limit(20);
+  const { data, error } = await db.from('backups').select('*').order('created_at', { ascending: false }).limit(20);
   const list = document.getElementById('backup-list');
   if (error || !data?.length) {
     list.innerHTML = `<div class="empty"><div class="empty-icon">💾</div>Brak backupów</div>`;
@@ -576,7 +576,7 @@ async function loadBackups() {
 async function makeBackup() {
   try {
     const label = 'manual_' + new Date().toISOString().slice(0,16).replace('T',' ');
-    const { error } = await supabase.from('backups').insert({
+    const { error } = await db.from('backups').insert({
       label,
       items_data: allItems,
       pula_data:  allPula
@@ -595,28 +595,28 @@ function askRestore(id, label) {
 
 async function confirmRestore() {
   try {
-    const { data, error } = await supabase.from('backups').select('items_data,pula_data').eq('id', restoreBackupId).single();
+    const { data, error } = await db.from('backups').select('items_data,pula_data').eq('id', restoreBackupId).single();
     if (error) throw error;
 
     // Utwórz backup przed przywróceniem
-    await supabase.from('backups').insert({
+    await db.from('backups').insert({
       label: 'przed_przywroceniem_' + new Date().toISOString().slice(0,16),
       items_data: allItems,
       pula_data:  allPula
     });
 
     // Wyczyść i przywróć items
-    await supabase.from('items').delete().neq('id', 0);
+    await db.from('items').delete().neq('id', 0);
     if (data.items_data?.length) {
       const clean = data.items_data.map(({ id, created_at, updated_at, ...rest }) => rest);
-      await supabase.from('items').insert(clean);
+      await db.from('items').insert(clean);
     }
 
     // Wyczyść i przywróć pula
-    await supabase.from('pula').delete().neq('id', 0);
+    await db.from('pula').delete().neq('id', 0);
     if (data.pula_data?.length) {
       const clean = data.pula_data.map(({ id, created_at, updated_at, ...rest }) => rest);
-      await supabase.from('pula').insert(clean);
+      await db.from('pula').insert(clean);
     }
 
     closeModal('modal-restore');
