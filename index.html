@@ -1412,7 +1412,7 @@
 
       // ── QR ────────────────────────────────────────────────────────────────────────
       function showQR() {
-        const url = window.location.href.split('?')[0];
+        const url = 'https://axreak.github.io/WyszukiwarkaKomponentow/';
         const qrEl = document.getElementById('qrcode');
         qrEl.innerHTML = '';
         
@@ -1422,17 +1422,19 @@
         const colorLight = isDark ? '#1c1c1e' : '#ffffff';
         
         new QRCode(qrEl, {
-          text: url,
-          width: 200,
-          height: 200,
-          colorDark: colorDark,
-          colorLight: colorLight,
-          correctLevel: QRCode.CorrectLevel.M,
+            text: url,
+            width: 200,
+            height: 200,
+            colorDark: '#000000',
+            colorLight: '#FFFFFF',
+            correctLevel: QRCode.CorrectLevel.M
         });
-        
+        // Wymuś białe tło na canvas/img niezależnie od motywu
+        const qrEl2 = document.getElementById('qrcode');
+        const el = qrEl2.querySelector('canvas') || qrEl2.querySelector('img');
+        if (el) el.style.cssText = 'background:#fff;padding:8px;border-radius:8px;display:block';
         openModal('modal-qr');
-      }
-
+}
       function copyLink() {
         navigator.clipboard.writeText(window.location.href.split('?')[0])
           .then(() => toast('Link skopiowany!'))
