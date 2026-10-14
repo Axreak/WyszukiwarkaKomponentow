@@ -1,22 +1,16 @@
 {
-  "name": "Baza danych",
-  "short_name": "Baza",
-  "description": "Wyszukiwarka i edytor puli z synchronizacją",
-  "start_url": "/",
+  "name": "Wyszukiwarka Komponentów",
+  "short_name": "Wyszukiwarka",
+  "description": "Wyszukiwarka i baza pozycji z synchronizacją",
+  "start_url": "./",
+  "scope": "./",
   "display": "standalone",
+  "orientation": "portrait",
   "background_color": "#F1F0EC",
   "theme_color": "#FFFFFF",
-  "orientation": "portrait",
   "icons": [
-    {
-      "src": "icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png"
-    },
-    {
-      "src": "icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png"
-    }
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
   ]
 }
